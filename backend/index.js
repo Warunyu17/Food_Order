@@ -1,0 +1,103 @@
+/* ---------- setup ---------- */
+const express = require('express');
+const mysql   = require('mysql2');
+const cors    = require('cors');
+const path    = require('path');
+const multer  = require('multer');
+
+const app  = express();
+const port = 3001;
+
+/* ---------- middleware ---------- */
+app.use(cors());
+app.use(express.json());
+
+/* serve static image files */
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+/* ---------- multer for image upload ---------- */
+const storage = multer.diskStorage({
+  destination: 'uploads/',
+  filename:   (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+});
+const upload = multer({ storage });
+
+/* ---------- MySQL ---------- */
+require('dotenv').config();
+
+const db = mysql.createConnection({
+  host:     process.env.DB_HOST,
+  user:     process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME
+});
+
+/* ---------- API ---------- */
+
+app.get('/menus', (req, res) => {
+  db.query('SELECT * FROM menu', (err, results) => {
+    if (err) return res.status(500).send('error');
+    res.json(results);
+  });
+});
+
+app.post('/menu', upload.single('image'), (req, res) => {
+  const { name, price, description } = req.body;
+  const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+  db.query(
+    'INSERT INTO menu (name, price, description, image_url) VALUES (?, ?, ?, ?)',
+    [name, price, description, image_url],
+    err => {
+      if (err) return res.status(500).send('error');
+      res.sendStatus(200);
+    }
+  );
+});
+
+app.post('/order', (req, res) => {
+  const { customer, items } = req.body;
+  db.query(
+    'INSERT INTO orders (customer, items) VALUES (?, ?)',
+    [customer, JSON.stringify(items)],
+    err => {
+      if (err) return res.status(500).send('error');
+      res.sendStatus(200);
+    }
+  );
+});
+
+app.get('/orders', (req, res) => {
+  db.query('SELECT * FROM orders', (err, results) => {
+    if (err) return res.status(500).send('error');
+    res.json(results);
+  });
+});
+
+app.delete('/order/:id', (req, res) => {
+  db.query('DELETE FROM orders WHERE id = ?', [req.params.id], err => {
+    if (err) return res.status(500).send('error');
+    res.sendStatus(200);
+  });
+});
+
+app.delete('/menu/:id', (req, res) => {
+  db.query('DELETE FROM menu WHERE id = ?', [req.params.id], err => {
+    if (err) return res.status(500).send('error');
+    res.sendStatus(200);
+  });
+});
+
+app.put('/menu/:id', (req, res) => {
+  const { name, price, description } = req.body;
+  db.query(
+    'UPDATE menu SET name=?, price=?, description=? WHERE id=?',
+    [name, price, description, req.params.id],
+    err => {
+      if (err) return res.status(500).send('error');
+      res.sendStatus(200);
+    }
+  );
+});
+
+app.listen(port, () => console.log('Server running on ' + port));
