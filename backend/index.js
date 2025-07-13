@@ -4,12 +4,13 @@ const mysql   = require('mysql2');
 const cors    = require('cors');
 const path    = require('path');
 const multer  = require('multer');
+const bcrypt = require('bcrypt');
 
 const app  = express();
 const port = 3001;
 
 /* ---------- middleware ---------- */
-app.use(cors());
+app.use(cors({ origin: process.env.CORS_ORIGIN }));
 app.use(express.json());
 
 /* serve static image files */
@@ -88,4 +89,19 @@ app.delete('/menu/:id', (req, res) => {
   });
 });
 
+app.post('/api/login', async (req, res) => {
+  const { password } = req.body;
+  if (!password) return res.status(400).json({ success: false });
+
+  try {
+    const ok = await bcrypt.compare(password, process.env.ADMIN_HASH);
+    return res.json({ success: ok });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
+});
+
+/* ---------- RUNNING ---------- */
+const PORT = process.env.PORT || 3001;
 app.listen(port, () => console.log('Server running on ' + port));
