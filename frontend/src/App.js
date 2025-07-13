@@ -5,7 +5,6 @@ import OrderPage from './pages/OrderPage';
 import AddMenuPage from './pages/AddMenuPage';
 import OrdersPage from './pages/OrdersPage';
 import Navbar from './components/Navbar';
-import ManageMenuPage from './pages/ManageMenuPage';
 
 
 export default function App() {
@@ -18,7 +17,6 @@ export default function App() {
         <Route path="/order" element={<OrderPage />} />
         <Route path="/add-menu" element={<AddMenuPage />} />
         <Route path="/orders" element={<OrdersPage />} />
-        <Route path="/manage-menu" element={<ManageMenuPage />} />
       </Routes>
     </Router>
   );

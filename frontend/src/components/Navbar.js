@@ -31,9 +31,6 @@ export default function Navbar() {
       <NavLink to="/add-menu" style={linkStyle} activeStyle={activeStyle}>
         เพิ่มเมนู
       </NavLink>
-      <NavLink to="/manage-menu" style={linkStyle} activeStyle={activeStyle}>
-        แก้ไขเมนู
-      </NavLink>
       <NavLink to="/orders" style={linkStyle} activeStyle={activeStyle}>
         รายการสั่งอาหาร
       </NavLink>
