@@ -9,7 +9,6 @@ export default function AddMenuPage() {
   const [image, setImage] = useState(null);
   const [menuList, setMenuList] = useState([]);
 
-  // โหลดเมนูทั้งหมดตอนเริ่มและหลังเพิ่ม/ลบ
   const fetchMenu = () => {
     axios.get('http://localhost:3001/menus')
       .then(res => setMenuList(res.data))

@@ -56,10 +56,10 @@ app.post('/menu', upload.single('image'), (req, res) => {
 });
 
 app.post('/order', (req, res) => {
-  const { customer, items } = req.body;
+  const { customer, items, note } = req.body;
   db.query(
-    'INSERT INTO orders (customer, items) VALUES (?, ?)',
-    [customer, JSON.stringify(items)],
+    'INSERT INTO orders (customer, items, note) VALUES (?, ?, ?)',
+    [customer, JSON.stringify(items), note || '-'],
     err => {
       if (err) return res.status(500).send('error');
       res.sendStatus(200);
@@ -86,18 +86,6 @@ app.delete('/menu/:id', (req, res) => {
     if (err) return res.status(500).send('error');
     res.sendStatus(200);
   });
-});
-
-app.put('/menu/:id', (req, res) => {
-  const { name, price, description } = req.body;
-  db.query(
-    'UPDATE menu SET name=?, price=?, description=? WHERE id=?',
-    [name, price, description, req.params.id],
-    err => {
-      if (err) return res.status(500).send('error');
-      res.sendStatus(200);
-    }
-  );
 });
 
 app.listen(port, () => console.log('Server running on ' + port));

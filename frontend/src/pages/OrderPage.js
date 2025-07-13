@@ -7,6 +7,7 @@ export default function OrderPage() {
   const [confirmed, setConfirmed] = useState(false);
   const [items, setItems] = useState({});
   const [selected, setSelected] = useState({});
+  const [note, setNote] = useState('');
 
   useEffect(() => {
     axios.get('http://localhost:3001/menus')
@@ -46,11 +47,14 @@ export default function OrderPage() {
       return;
     }
 
-    axios.post('http://localhost:3001/order', { customer, items: selectedItems })
+    const orderNote = note.trim() === '' ? '-' : note.trim();
+
+    axios.post('http://localhost:3001/order', { customer, items: selectedItems, note: orderNote })
       .then(() => {
         alert('ส่งคำสั่งซื้อแล้ว');
         setItems({});
         setSelected({});
+        setNote('');
       })
       .catch(() => alert('เกิดข้อผิดพลาด'));
   };
@@ -120,6 +124,18 @@ export default function OrderPage() {
           );
         })}
       </ul>
+
+      <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+        <label htmlFor="note" style={{ fontWeight: 'bold' }}>หมายเหตุ (ถ้ามี):</label><br />
+        <textarea
+          id="note"
+          value={note}
+          onChange={e => setNote(e.target.value)}
+          placeholder="ใส่หมายเหตุเพิ่มเติมที่นี่ (ถ้าไม่มีเว้นว่างไว้)"
+          rows={3}
+          style={{ width: '90%', padding: '0.5rem', fontSize: '1rem', marginTop: '0.5rem' }}
+        />
+      </div>
 
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <button
